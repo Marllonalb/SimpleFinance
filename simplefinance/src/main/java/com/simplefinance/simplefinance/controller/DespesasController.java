@@ -50,4 +50,14 @@ public class DespesasController {
 
     }
 
+    @DeleteMapping("/{idDespesa}")
+    public ResponseEntity<Void> excluirDespesa(@PathVariable Long idDespesa){
+        try{
+            despesasService.excluirDespesa(idDespesa);
+            return ResponseEntity.noContent().build();
+        }catch (CustomException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

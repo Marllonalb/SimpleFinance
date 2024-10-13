@@ -7,6 +7,8 @@ import com.simplefinance.simplefinance.repository.DespesasRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import java.util.Optional;
 
 import java.time.LocalDateTime;
@@ -76,6 +78,16 @@ public class DespesasService {
                 despesa.getVencimento(),
                 despesa.getNome()
         );
+    }
+
+    public void excluirDespesa(@PathVariable Long idDespesa){
+        Optional<Despesas> despesa = despesasRepository.findById(idDespesa);
+        if(despesa.isPresent()){
+            despesasRepository.deleteById(idDespesa);
+        }else{
+            throw new CustomException("Despesa não encontrada com id: " + idDespesa);
+        }
+
     }
 
 
