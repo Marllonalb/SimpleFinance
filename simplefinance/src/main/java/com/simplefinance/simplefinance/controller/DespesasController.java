@@ -36,6 +36,18 @@ public class DespesasController {
 
     }
 
+    @GetMapping("/{idDespesa}")
+    public ResponseEntity<DespesasDTO> listarDespesaPorId(@PathVariable Long idDespesa){
+        try{
+            DespesasDTO despesasDTO = despesasService.listarDespesaPorId(idDespesa);
+            return ResponseEntity.ok(despesasDTO);
+
+        }catch (CustomException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
     @PatchMapping("/{idDespesa}")
     public ResponseEntity<DespesasDTO> atualizacaoDespesa(@RequestBody DespesasDTO despesasDTO,
                                                           @PathVariable Long idDespesa){
@@ -43,7 +55,7 @@ public class DespesasController {
             DespesasDTO despesaAtualizada = despesasService.atualizarDespesas(despesasDTO, idDespesa);
             return ResponseEntity.ok(despesaAtualizada);
         }catch (CustomException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.notFound().build();
 
         }
 

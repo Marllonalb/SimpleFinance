@@ -4,6 +4,7 @@ import com.simplefinance.simplefinance.dto.DespesasDTO;
 import com.simplefinance.simplefinance.exception.CustomException;
 import com.simplefinance.simplefinance.model.Despesas;
 import com.simplefinance.simplefinance.repository.DespesasRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -66,7 +67,7 @@ public class DespesasService {
             return mapToDTO(despesaAtualizada);
 
         }else{
-            throw new CustomException("Despesa não encontrada com id: " + idDespesa);
+            throw new EntityNotFoundException("Despesa não encontrada com id: " + idDespesa);
         }
 
     }
@@ -80,7 +81,7 @@ public class DespesasService {
         );
     }
 
-    public void excluirDespesa(@PathVariable Long idDespesa){
+    public void excluirDespesa(Long idDespesa){
         Optional<Despesas> despesa = despesasRepository.findById(idDespesa);
         if(despesa.isPresent()){
             despesasRepository.deleteById(idDespesa);
@@ -88,6 +89,12 @@ public class DespesasService {
             throw new CustomException("Despesa não encontrada com id: " + idDespesa);
         }
 
+    }
+
+    public DespesasDTO listarDespesaPorId(Long idDespesa){
+        Despesas despesas = despesasRepository.findById(idDespesa)
+                .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada com id: " + idDespesa));
+        return mapToDTO(despesas);
     }
 
 
