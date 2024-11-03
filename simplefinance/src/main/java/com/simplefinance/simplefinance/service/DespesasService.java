@@ -7,12 +7,15 @@ import com.simplefinance.simplefinance.repository.DespesasRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.List;
 import java.util.Optional;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Service
 public class DespesasService {
@@ -24,23 +27,29 @@ public class DespesasService {
     }
 
     @Transactional
-    public Despesas criarDespesa(DespesasDTO despesasDTO){
+    public DespesasDTO criarDespesa(DespesasDTO despesasDTO){
 
         if(despesasDTO.getVencimento() != null
-        & despesasDTO.getVencimento().isBefore(LocalDateTime.now())){
+        && despesasDTO.getVencimento().isBefore(LocalDateTime.now())){
             throw new IllegalArgumentException("A data de vencimento não pode ser no passado.");
 
         }
-        Despesas novaDespesa = new Despesas();
 
-        novaDespesa.setNome(despesasDTO.getNome());
-        novaDespesa.setValor(despesasDTO.getValor());
-        novaDespesa.setRepeticao(despesasDTO.getRepeticao());
-        novaDespesa.setVencimento(despesasDTO.getVencimento());
+        Despesas novaDespesa = converterDtoParaEntidade(despesasDTO);
         novaDespesa.setDataCriacao(LocalDateTime.now());
         novaDespesa.setDataModificacao(LocalDateTime.now());
 
-        return despesasRepository.save(novaDespesa);
+        despesasRepository.save(novaDespesa);
+        return mapToDTO(novaDespesa);
+    }
+
+    private Despesas converterDtoParaEntidade(DespesasDTO despesasDTO){
+        Despesas despesas = new Despesas();
+        despesas.setNome(despesasDTO.getNome());
+        despesas.setVencimento(despesasDTO.getVencimento());
+        despesas.setRepeticao(despesasDTO.getRepeticao());
+        despesas.setValor(despesasDTO.getValor());
+        return despesas;
     }
 
     public DespesasDTO atualizarDespesas(DespesasDTO despesasDTO, Long idDespesa){
@@ -95,6 +104,13 @@ public class DespesasService {
         Despesas despesas = despesasRepository.findById(idDespesa)
                 .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada com id: " + idDespesa));
         return mapToDTO(despesas);
+    }
+
+    public List<DespesasDTO> listarDespesas() {
+        List<Despesas> despesas = despesasRepository.findAll();
+        return despesas.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
 

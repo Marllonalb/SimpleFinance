@@ -11,6 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @Validated
 @RequestMapping("/api/despesas")
@@ -23,53 +25,42 @@ public class DespesasController {
     }
 
     @PostMapping
-    public  ResponseEntity<Despesas> criarDespesa(@RequestBody DespesasDTO despesasDTO){
-        try{
-            Despesas novaDespesa = despesasService.criarDespesa(despesasDTO);
-            return new ResponseEntity<>(novaDespesa, HttpStatus.CREATED);
-        }catch(DataIntegrityViolationException e){
-            throw new CustomException("Erro ao salvar a despesa", e);
-        }catch (IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+    public  ResponseEntity<DespesasDTO> criarDespesa(@RequestBody DespesasDTO despesasDTO){
+        DespesasDTO novaDespesa = despesasService.criarDespesa(despesasDTO);
+        return new ResponseEntity<>(novaDespesa, HttpStatus.CREATED);
 
 
     }
 
     @GetMapping("/{idDespesa}")
     public ResponseEntity<DespesasDTO> listarDespesaPorId(@PathVariable Long idDespesa){
-        try{
             DespesasDTO despesasDTO = despesasService.listarDespesaPorId(idDespesa);
             return ResponseEntity.ok(despesasDTO);
+    }
 
-        }catch (CustomException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping
+    public ResponseEntity<List<DespesasDTO>> listarDespesas(){
+            List<DespesasDTO> despesasDTO = despesasService.listarDespesas();
+            return ResponseEntity.ok(despesasDTO);
+
 
     }
 
     @PatchMapping("/{idDespesa}")
     public ResponseEntity<DespesasDTO> atualizacaoDespesa(@RequestBody DespesasDTO despesasDTO,
                                                           @PathVariable Long idDespesa){
-        try{
-            DespesasDTO despesaAtualizada = despesasService.atualizarDespesas(despesasDTO, idDespesa);
-            return ResponseEntity.ok(despesaAtualizada);
-        }catch (CustomException e) {
-            return ResponseEntity.notFound().build();
+            List<DespesasDTO> despesaAtualizada = (List<DespesasDTO>) despesasService.atualizarDespesas(despesasDTO, idDespesa);
+            return ResponseEntity.ok((DespesasDTO) despesaAtualizada);
 
-        }
 
 
     }
 
     @DeleteMapping("/{idDespesa}")
     public ResponseEntity<Void> excluirDespesa(@PathVariable Long idDespesa){
-        try{
             despesasService.excluirDespesa(idDespesa);
             return ResponseEntity.noContent().build();
-        }catch (CustomException e) {
-            return ResponseEntity.notFound().build();
-        }
+
     }
 
 }
